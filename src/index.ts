@@ -13,11 +13,15 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().basePath(
 app.use("*", logger());
 app.use(
 	"/api/*",
-	cors({
-		origin: ["http://localhost:3000"],
-		allowMethods: ["GET", "POST", "PUT", "DELETE"],
-		allowHeaders: ["Content-Type", "Authorization", "X-API-Key"],
-	}),
+	async(c, next) => {
+		cors({
+			origin: [	'*'	],
+			allowMethods: ["GET", "POST", "PUT", "DELETE"],
+			allowHeaders: ["Content-Type", "Authorization", "X-API-Key"],
+		});
+
+		await next();
+	}
 );
 
 // ヘルスチェック
@@ -28,6 +32,24 @@ app.get("/health", (c) => {
 		version: "1.0.0",
 	});
 });
+
+import { openAPIRouteHandler } from 'hono-openapi'
+
+app.get(
+  '/openapi',
+  openAPIRouteHandler(app, {
+    documentation: {
+      info: {
+        title: 'Hono API',
+        version: '1.0.0',
+        description: 'Greeting API',
+      },
+      servers: [
+        { url: 'http://localhost:3000', description: 'Local Server' },
+      ],
+    },
+  })
+)
 
 // TODO: Rate Limiting
 

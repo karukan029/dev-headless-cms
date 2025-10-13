@@ -4,6 +4,7 @@ import { verify } from "hono/jwt";
 export type Bindings = {
 	JWT_SECRET: string;
 	API_KEYS: string;
+	MCP_URL: string;
 };
 
 export type Variables = {

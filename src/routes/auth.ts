@@ -6,11 +6,32 @@ import {
 	type JWTPayload,
 	jwtAuthMiddleware,
 } from "../middlewares/authMiddleware";
+import * as v from "valibot";
+import { describeRoute, resolver } from 'hono-openapi'
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+const tokenResponseSchema = v.object({
+	access_token: v.string(),
+	token_type: v.literal("Bearer"),
+	expires_in: v.number(),
+	client_name: v.optional(v.string()),
+});
+
 // 認証エンドポイント - JWT Token取得
-app.post("/token", apiKeyAuthMiddleware, async (c) => {
+app.post("/token", apiKeyAuthMiddleware, describeRoute({
+	description: 'Get a JWT token using an API key',
+	responses: {
+		200: {
+			description: 'Successful response with JWT token',
+			content: {
+				'application/json': {
+					schema: resolver(tokenResponseSchema),
+				},
+			},
+		},
+	},
+}), async (c) => {
 	const client = c.get("client");
 	const jwtSecret = c.env.JWT_SECRET;
 
@@ -36,7 +57,19 @@ app.post("/token", apiKeyAuthMiddleware, async (c) => {
 });
 
 // Token更新エンドポイント
-app.post("/refresh", jwtAuthMiddleware, async (c) => {
+app.post("/refresh", jwtAuthMiddleware, describeRoute({
+	description: 'Refresh JWT token using existing valid token',
+	responses: {
+		200: {
+			description: 'Successful response with new JWT token',
+			content: {
+				'application/json': {
+					schema: resolver(tokenResponseSchema),
+				},
+			},
+		},
+	},
+}), async (c) => {
 	const user = c.get("user");
 	const jwtSecret = c.env.JWT_SECRET;
 
