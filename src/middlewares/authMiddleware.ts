@@ -2,10 +2,10 @@ import { createMiddleware } from "hono/factory";
 import { verify } from "hono/jwt";
 
 export type Bindings = {
-	JWT_SECRET: string;
-	API_KEYS: string;
-	MCP_URL: string;
-	GITHUB_TOKEN: string;
+	JWT_SECRET?: string;
+	MCP_URL?: string;
+	GITHUB_TOKEN?: string;
+	DEFAULT_ADMIN_API_KEY?: string;
 };
 
 export type Variables = {
@@ -26,33 +26,36 @@ export type JWTPayload = {
 	exp: number;
 };
 
-// API Key設定（実際の本番環境では外部ストレージを使用）
-const API_KEYS = new Map<string, Omit<ClientInfo, "apiKey">>([
-	["admin-cli-key-1", { name: "MCP-Client-1", permissions: ["admin"] }],
-	["admin-cli-key-2", { name: "MCP-Client-2", permissions: ["admin"] }],
-]);
-
 // API Key検証ミドルウェア
-export const apiKeyAuthMiddleware = createMiddleware<{ Variables: Variables }>(
-	async (c, next) => {
-		const apiKey = c.req.header("x-api-key");
+export const apiKeyAuthMiddleware = createMiddleware<{
+	Variables: Variables;
+	Bindings: Bindings;
+}>(async (c, next) => {
+	const apiKey = c.req.header("x-api-key");
 
-		if (!apiKey) {
-			return c.json({ error: "API key is required" }, 401);
-		}
+	if (!apiKey || !c.env.DEFAULT_ADMIN_API_KEY) {
+		return c.json({ error: "API key is required" }, 401);
+	}
 
-		const client = API_KEYS.get(apiKey);
-		if (!client) {
-			return c.json({ error: "Invalid API key" }, 401);
-		}
+	//Default API Key設定（実際の本番環境では外部ストレージを使用）
+	const API_KEYS = new Map<string, Omit<ClientInfo, "apiKey">>([
+		[
+			c.env.DEFAULT_ADMIN_API_KEY,
+			{ name: "SUPER_ADMIN", permissions: ["admin"] },
+		],
+	]);
 
-		c.set("client", { ...client, apiKey });
-		await next();
-	},
-);
+	const client = API_KEYS.get(apiKey);
+	if (!client) {
+		return c.json({ error: "Invalid API key" }, 401);
+	}
+
+	c.set("client", { ...client, apiKey });
+	await next();
+});
 
 // JWT認証ミドルウェア
-export const jwtAuthMiddleware = createMiddleware<{
+export const _jwtAuthMiddleware = createMiddleware<{
 	Variables: Variables;
 	Bindings: Bindings;
 }>(async (c, next) => {
@@ -76,7 +79,7 @@ export const jwtAuthMiddleware = createMiddleware<{
 });
 
 // Admin権限チェックミドルウェア
-export const requireAdminMiddleware = createMiddleware<{
+export const _requireAdminMiddleware = createMiddleware<{
 	Variables: Variables;
 }>(async (c, next) => {
 	const client = c.get("client");
@@ -89,7 +92,7 @@ export const requireAdminMiddleware = createMiddleware<{
 });
 
 // 監査ログミドルウェア
-export const auditLogMiddleware = createMiddleware<{ Variables: Variables }>(
+export const _auditLogMiddleware = createMiddleware<{ Variables: Variables }>(
 	async (c, next) => {
 		const client = c.get("client");
 		const user = c.get("user");
