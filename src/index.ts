@@ -12,18 +12,15 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().basePath(
 
 // ミドルウェア設定
 app.use("*", logger());
-app.use(
-	"/api/*",
-	async(c, next) => {
-		cors({
-			origin: [	'*'	],
-			allowMethods: ["GET", "POST", "PUT", "DELETE"],
-			allowHeaders: ["Content-Type", "Authorization", "X-API-Key"],
-		});
+app.use("/api/*", async (c, next) => {
+	cors({
+		origin: ["*"],
+		allowMethods: ["GET", "POST", "PUT", "DELETE"],
+		allowHeaders: ["Content-Type", "Authorization", "X-API-Key"],
+	});
 
-		await next();
-	}
-);
+	await next();
+});
 
 // ヘルスチェック
 app.get("/health", (c) => {
@@ -34,26 +31,27 @@ app.get("/health", (c) => {
 	});
 });
 
-import { openAPIRouteHandler } from 'hono-openapi'
+import { openAPIRouteHandler } from "hono-openapi";
 
 app.get(
-  '/openapi',
-  openAPIRouteHandler(app, {
-    documentation: {
-      info: {
-        title: 'Hono API',
-        version: '1.0.0',
-        description: 'Greeting API',
-      },
-      servers: [
-        { url: 'http://localhost:3000', description: 'Local Server' },
-      ],
-    },
-  })
-)
+	"/openapi",
+	openAPIRouteHandler(app, {
+		documentation: {
+			info: {
+				title: "Hono API",
+				version: "1.0.0",
+				description: "Greeting API",
+			},
+			servers: [{ url: "http://localhost:3000", description: "Local Server" }],
+		},
+	}),
+);
 
 // TODO: Rate Limiting
 
-app.route("/auth", authApp).route("/admin", adminApp).route("/deploy", deployApp);
+app
+	.route("/auth", authApp)
+	.route("/admin", adminApp)
+	.route("/deploy", deployApp);
 
 export default app;
