@@ -5,6 +5,7 @@ export type Bindings = {
 	JWT_SECRET: string;
 	API_KEYS: string;
 	MCP_URL: string;
+	GITHUB_TOKEN: string;
 };
 
 export type Variables = {

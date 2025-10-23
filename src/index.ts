@@ -4,6 +4,7 @@ import { logger } from "hono/logger";
 import type { Bindings, Variables } from "./middlewares/authMiddleware";
 import adminApp from "./routes/admin";
 import authApp from "./routes/auth";
+import deployApp from "./routes/deploy";
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().basePath(
 	"/api",
@@ -53,6 +54,6 @@ app.get(
 
 // TODO: Rate Limiting
 
-app.route("/auth", authApp).route("/admin", adminApp);
+app.route("/auth", authApp).route("/admin", adminApp).route("/deploy", deployApp);
 
 export default app;
