@@ -3,7 +3,6 @@ import { verify } from "hono/jwt";
 
 export type Bindings = {
 	JWT_SECRET?: string;
-	MCP_URL?: string;
 	GITHUB_TOKEN?: string;
 	DEFAULT_ADMIN_API_KEY?: string;
 	READ_API_KEY?: string;
