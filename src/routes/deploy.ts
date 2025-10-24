@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
 import type { Bindings } from "../middlewares/authMiddleware";
 import { apiKeyAuthMiddleware } from "../middlewares/authMiddleware";
-import * as v from "valibot";
 
 const app = new Hono<{ Bindings: Bindings }>();
 

@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
+import { describeRoute, resolver } from "hono-openapi";
+import * as v from "valibot";
 import {
 	apiKeyAuthMiddleware,
 	type Bindings,
 	type JWTPayload,
 	jwtAuthMiddleware,
 } from "../middlewares/authMiddleware";
-import * as v from "valibot";
-import { describeRoute, resolver } from "hono-openapi";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
