@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { openAPIRouteHandler } from "hono-openapi";
 import type { Bindings, Variables } from "./middlewares/authMiddleware";
 import adminApp from "./routes/admin";
 import authApp from "./routes/auth";
@@ -31,7 +32,12 @@ app.get("/health", (c) => {
 	});
 });
 
-import { openAPIRouteHandler } from "hono-openapi";
+// TODO: Rate Limiting
+
+app
+	.route("/auth", authApp)
+	.route("/admin", adminApp)
+	.route("/deploy", deployApp);
 
 app.get(
 	"/openapi",
@@ -46,12 +52,5 @@ app.get(
 		},
 	}),
 );
-
-// TODO: Rate Limiting
-
-app
-	.route("/auth", authApp)
-	.route("/admin", adminApp)
-	.route("/deploy", deployApp);
 
 export default app;

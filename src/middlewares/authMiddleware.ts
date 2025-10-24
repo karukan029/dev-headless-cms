@@ -55,7 +55,7 @@ export const apiKeyAuthMiddleware = createMiddleware<{
 });
 
 // JWT認証ミドルウェア
-export const _jwtAuthMiddleware = createMiddleware<{
+export const jwtAuthMiddleware = createMiddleware<{
 	Variables: Variables;
 	Bindings: Bindings;
 }>(async (c, next) => {
@@ -79,7 +79,7 @@ export const _jwtAuthMiddleware = createMiddleware<{
 });
 
 // Admin権限チェックミドルウェア
-export const _requireAdminMiddleware = createMiddleware<{
+export const requireAdminMiddleware = createMiddleware<{
 	Variables: Variables;
 }>(async (c, next) => {
 	const client = c.get("client");
@@ -92,7 +92,7 @@ export const _requireAdminMiddleware = createMiddleware<{
 });
 
 // 監査ログミドルウェア
-export const _auditLogMiddleware = createMiddleware<{ Variables: Variables }>(
+export const auditLogMiddleware = createMiddleware<{ Variables: Variables }>(
 	async (c, next) => {
 		const client = c.get("client");
 		const user = c.get("user");
