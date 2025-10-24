@@ -6,6 +6,7 @@ export type Bindings = {
 	MCP_URL?: string;
 	GITHUB_TOKEN?: string;
 	DEFAULT_ADMIN_API_KEY?: string;
+	READ_API_KEY?: string;
 };
 
 export type Variables = {
@@ -33,7 +34,7 @@ export const apiKeyAuthMiddleware = createMiddleware<{
 }>(async (c, next) => {
 	const apiKey = c.req.header("x-api-key");
 
-	if (!apiKey || !c.env.DEFAULT_ADMIN_API_KEY) {
+	if (!apiKey || !c.env.DEFAULT_ADMIN_API_KEY || !c.env.READ_API_KEY) {
 		return c.json({ error: "API key is required" }, 401);
 	}
 
@@ -42,6 +43,10 @@ export const apiKeyAuthMiddleware = createMiddleware<{
 		[
 			c.env.DEFAULT_ADMIN_API_KEY,
 			{ name: "SUPER_ADMIN", permissions: ["admin"] },
+		],
+		[
+			c.env.READ_API_KEY || "",
+			{ name: "READ_ONLY_CLIENT", permissions: ["read"] },
 		],
 	]);
 
@@ -88,6 +93,18 @@ export const requireAdminMiddleware = createMiddleware<{
 		return c.json({ error: "Admin privileges required" }, 403);
 	}
 
+	await next();
+});
+
+// Read権限チェックミドルウェア
+export const requireReadMiddleware = createMiddleware<{
+	Variables: Variables;
+}>(async (c, next) => {
+	const client = c.get("client");
+
+	if (!client.permissions.includes("read")) {
+		return c.json({ error: "Read privileges required" }, 403);
+	}
 	await next();
 });
 
