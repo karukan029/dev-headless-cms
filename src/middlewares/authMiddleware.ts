@@ -102,7 +102,10 @@ export const requireReadMiddleware = createMiddleware<{
 }>(async (c, next) => {
 	const client = c.get("client");
 
-	if (!client.permissions.includes("read")) {
+	if (
+		!client.permissions.includes("read") &&
+		!client.permissions.includes("admin")
+	) {
 		return c.json({ error: "Read privileges required" }, 403);
 	}
 	await next();

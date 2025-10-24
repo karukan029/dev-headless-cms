@@ -5,6 +5,7 @@ import { openAPIRouteHandler } from "hono-openapi";
 import type { Bindings, Variables } from "./middlewares/authMiddleware";
 import adminApp from "./routes/admin";
 import authApp from "./routes/auth";
+import contentApp from "./routes/content";
 import deployApp from "./routes/deploy";
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().basePath(
@@ -37,7 +38,8 @@ app.get("/health", (c) => {
 app
 	.route("/auth", authApp)
 	.route("/admin", adminApp)
-	.route("/deploy", deployApp);
+	.route("/deploy", deployApp)
+	.route("/content", contentApp);
 
 app.get(
 	"/openapi",
