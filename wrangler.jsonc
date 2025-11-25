@@ -6,5 +6,12 @@
 		"nodejs_compat",
 		"nodejs_compat_populate_process_env"
 	],
-	"main": "./src/index.ts"
+	"main": "./src/index.ts",
+	"d1_databases": [
+		{
+			"binding": "dev_headless_cms_db",
+			"database_name": "dev-headless-cms-db",
+			"database_id": "1a88fb51-0828-454a-a9f2-8023a4c06879"
+		}
+	]
 }
